@@ -1,0 +1,10 @@
+src/colon-path.c
+src/colon-cmd.c
+src/colon-mv.c
+src/colon-cp.c
+src/colon-zip.c
+src/colon-rm.c
+src/colon-rmdir.c
+src/colon-scp.c
+src/colon-unzip.c
+src/colon-rsync.c
