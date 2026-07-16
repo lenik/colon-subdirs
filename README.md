@@ -45,6 +45,18 @@ Use `--colon-dry-run` to print the rewritten command. Full option details live
 in the original manuals (`mv(1)`, `zip(1)`, …); the colon-* man pages document
 colon-path behavior and wrapper flags.
 
+### `COLON_WRAP`
+
+| Value | Behavior |
+|-------|----------|
+| unset | `exec` the stem of `$0` from `PATH` (`colon-mv` → `mv`) |
+| `0` | run the built-in rewrite in `src/rewrite/<cmd>.c` |
+| `<name>` | `exec <name>` instead |
+
+A leading colon-path (`:foo/bar`) means BASE `/` (same as `/:foo/bar`).
+For `:mv` / `:cp`, destination `:path` is rewritten by substituting the first
+`:` with `/`.
+
 ## Bash completion
 
 Installs under `bash-completion/completions/` for both `colon-mv` and `:mv`

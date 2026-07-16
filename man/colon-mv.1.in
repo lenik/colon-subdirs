@@ -61,6 +61,18 @@ All other options are passed through to
 .BR mv (1).
 This page only lists wrapper options; see the original manual for the complete
 set.
+.SH ENVIRONMENT
+.TP
+.B COLON_WRAP
+When unset, the wrapper executes
+.BR mv (1)
+from
+.BR PATH .
+When set to a program name, that program is executed instead.
+When set to
+.BR 0 ,
+the built-in rewrite implementation is used (no external
+.BR mv ).
 .SH SEE ALSO
 .BR mv (1),
 .BR colon-path (7),

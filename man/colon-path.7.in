@@ -50,6 +50,17 @@ is ignored when joining
 is the same physical path as
 .BR BASE:LEAF ).
 .PP
+A leading
+.B :
+with no
+.I BASE
+is treated as
+.BR /
+(for example
+.BR :foo/bar
+→ physical path
+.BR /foo/bar ).
+.PP
 Bash completion for these tools keeps
 .B :
 inside the current word and completes

@@ -47,6 +47,27 @@ START_TEST(test_rsync_daemon_not_colon) {
 }
 END_TEST
 
+START_TEST(test_colon_empty_left) {
+    ColonPath p;
+    ck_assert_int_eq(colon_path_parse(&p, ":foo/bar"), 0);
+    ck_assert_int_eq(p.is_colon, 1);
+    ck_assert_str_eq(p.base, "/");
+    ck_assert_str_eq(p.leaf, "foo/bar");
+    ck_assert_str_eq(p.physical, "/foo/bar");
+    colon_path_free(&p);
+
+    char *sub = colon_subst_slash(":foo/bar");
+    ck_assert_ptr_nonnull(sub);
+    ck_assert_str_eq(sub, "/foo/bar");
+    free(sub);
+
+    sub = colon_subst_slash("a/b:c/d");
+    ck_assert_ptr_nonnull(sub);
+    ck_assert_str_eq(sub, "a/b/c/d");
+    free(sub);
+}
+END_TEST
+
 START_TEST(test_join_mkdir) {
     char *j = colon_join("../x", "c/d");
     ck_assert_ptr_nonnull(j);
@@ -66,6 +87,7 @@ Suite *suite(void) {
     tcase_add_test(tc, test_colon_leading_slash_leaf);
     tcase_add_test(tc, test_host_path_not_colon);
     tcase_add_test(tc, test_rsync_daemon_not_colon);
+    tcase_add_test(tc, test_colon_empty_left);
     tcase_add_test(tc, test_join_mkdir);
     suite_add_tcase(s, tc);
     return s;
