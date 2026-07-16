@@ -1,0 +1,67 @@
+.TH @PROG@ 1 "@PROJECT_YEAR@" "@PROJECT_VERSION@" "User Commands"
+.SH NAME
+@PROG@, @COLON@ \- remove empty colon-path directories
+.SH SYNOPSIS
+.B @COLON@
+.RI [ OPTION ]...
+.I DIRECTORY
+\&...
+.br
+.B @PROG@
+.RI [ OPTION ]...
+\&...
+.SH DESCRIPTION
+.B @PROG@
+removes empty directories given as colon-paths.
+For
+.BR BASE:LEAF ,
+it removes the physical path
+.B BASE/LEAF
+and then empty parents along
+.I LEAF
+(deepest first), stopping at
+.BR BASE .
+Only empty directories are removed.
+.PP
+Plain (non-colon) arguments are passed to
+.BR rmdir (1).
+.PP
+See
+.BR colon-path (7).
+.SH EXAMPLES
+.TP
+.B @COLON@ a/b:d/e/f
+Removes empty
+.BR a/b/d/e/f ,
+then empty
+.B a/b/d/e
+and
+.B a/b/d
+if possible.
+Leaves
+.B a/b
+in place.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show wrapper help and exit.
+.TP
+.B \-\-version
+Show version and exit.
+.TP
+.B \-\-colon\-dry\-run
+Print the planned
+.B rmdir
+steps without executing them.
+.PP
+Options for plain operands are passed through to
+.BR rmdir (1).
+.SH SEE ALSO
+.BR rmdir (1),
+.BR colon-rm (1),
+.BR colon-path (7)
+.SH AUTHOR
+Written by @PROJECT_AUTHOR@ <@PROJECT_EMAIL@>.
+.SH COPYRIGHT
+Copyright \(co @PROJECT_YEAR@.
+License AGPL-3.0-or-later.

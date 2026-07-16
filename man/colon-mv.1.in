@@ -1,0 +1,72 @@
+.TH @PROG@ 1 "@PROJECT_YEAR@" "@PROJECT_VERSION@" "User Commands"
+.SH NAME
+@PROG@, @COLON@ \- move files using colon-path atomic names
+.SH SYNOPSIS
+.B @COLON@
+.RI [ OPTION ]...
+.I SOURCE DEST
+.br
+.B @COLON@
+.RI [ OPTION ]...
+.I SOURCE
+\&...
+.I DIRECTORY
+.br
+.B @PROG@
+.RI [ OPTION ]...
+\&...
+.SH DESCRIPTION
+.B @PROG@
+is a colon-path wrapper around
+.BR mv (1).
+It rewrites path arguments, creates missing parent directories for
+destinations, then executes
+.BR mv .
+.PP
+See
+.BR colon-path (7)
+for
+.BR BASE:LEAF
+syntax.
+.PP
+When the destination is a directory (or multiple sources are given), each
+source is placed at
+.I DEST/LEAF
+where
+.I LEAF
+is the atomic name of the source (the part after
+.BR : ,
+or the basename if no colon-path was used).
+.SH EXAMPLES
+.TP
+.B @COLON@ a/b:c/d ../x
+Runs
+.B mv a/b/c/d ../x/c/d
+after creating
+.BR ../x/c .
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show wrapper help and exit.
+.TP
+.B \-\-version
+Show version and exit.
+.TP
+.B \-\-colon\-dry\-run
+Print the rewritten
+.B mv
+command without executing it.
+.PP
+All other options are passed through to
+.BR mv (1).
+This page only lists wrapper options; see the original manual for the complete
+set.
+.SH SEE ALSO
+.BR mv (1),
+.BR colon-path (7),
+.BR colon-cp (1)
+.SH AUTHOR
+Written by @PROJECT_AUTHOR@ <@PROJECT_EMAIL@>.
+.SH COPYRIGHT
+Copyright \(co @PROJECT_YEAR@.
+License AGPL-3.0-or-later.

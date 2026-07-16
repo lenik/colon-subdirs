@@ -1,0 +1,59 @@
+.TH @PROG@ 1 "@PROJECT_YEAR@" "@PROJECT_VERSION@" "User Commands"
+.SH NAME
+@PROG@, @COLON@ \- extract zip archives with colon-path member mapping
+.SH SYNOPSIS
+.B @COLON@
+.RI [ OPTION ]...
+.I zipfile
+.RI [ member ]...
+.br
+.B @PROG@
+.RI [ OPTION ]...
+\&...
+.SH DESCRIPTION
+.B @PROG@
+is a colon-path wrapper around
+.BR unzip (1).
+.PP
+When a member is given as
+.BR BASE:LEAF ,
+archive members under the physical path
+.B BASE/LEAF
+are extracted and written to
+.I LEAF
+on disk.
+.PP
+See
+.BR colon-path (7).
+.SH EXAMPLES
+.TP
+.B @COLON@ a.zip a/b:/c/d/e
+Extracts members
+.B a/b/c/d/e/**
+from
+.B a.zip
+and writes them to
+.BR c/d/e/** .
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show wrapper help and exit.
+.TP
+.B \-\-version
+Show version and exit.
+.TP
+.B \-\-colon\-dry\-run
+Describe the extract/relocate plan without executing it.
+.PP
+Other options are passed through to
+.BR unzip (1).
+See the original manual for the complete option set.
+.SH SEE ALSO
+.BR unzip (1),
+.BR colon-zip (1),
+.BR colon-path (7)
+.SH AUTHOR
+Written by @PROJECT_AUTHOR@ <@PROJECT_EMAIL@>.
+.SH COPYRIGHT
+Copyright \(co @PROJECT_YEAR@.
+License AGPL-3.0-or-later.

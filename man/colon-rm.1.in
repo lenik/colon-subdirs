@@ -1,0 +1,76 @@
+.TH @PROG@ 1 "@PROJECT_YEAR@" "@PROJECT_VERSION@" "User Commands"
+.SH NAME
+@PROG@, @COLON@ \- remove files using colon-path
+.SH SYNOPSIS
+.B @COLON@
+.RI [ OPTION ]...
+.I FILE
+\&...
+.br
+.B @PROG@
+.RI [ OPTION ]...
+\&...
+.SH DESCRIPTION
+.B @PROG@
+wraps
+.BR rm (1).
+Each
+.B BASE:LEAF
+argument is rewritten to the physical path
+.B BASE/LEAF .
+.PP
+After a colon-path file (or tree) is removed, empty parent directories along
+.I LEAF
+are removed with
+.BR rmdir (2)
+when possible.
+.B BASE
+itself is never removed.
+.PP
+See
+.BR colon-path (7).
+.SH EXAMPLES
+.TP
+.B @COLON@ .:d/e/f
+Removes file
+.BR d/e/f ,
+then tries
+.B rmdir d/e
+and
+.B rmdir d
+if those directories are empty.
+.TP
+.B @COLON@ \-rf a/b:c/d
+Runs
+.B rm \-rf a/b/c/d ,
+then prunes empty parents under
+.B a/b
+along
+.BR c/d .
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show wrapper help and exit.
+.TP
+.B \-\-version
+Show version and exit.
+.TP
+.B \-\-colon\-dry\-run
+Print the planned
+.B rm
+and parent
+.B rmdir
+steps without executing them.
+.PP
+Other options are passed through to
+.BR rm (1).
+See the original manual for the complete option set.
+.SH SEE ALSO
+.BR rm (1),
+.BR colon-rmdir (1),
+.BR colon-path (7)
+.SH AUTHOR
+Written by @PROJECT_AUTHOR@ <@PROJECT_EMAIL@>.
+.SH COPYRIGHT
+Copyright \(co @PROJECT_YEAR@.
+License AGPL-3.0-or-later.

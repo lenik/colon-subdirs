@@ -1,0 +1,82 @@
+.TH COLON-PATH 7 "@PROJECT_YEAR@" "@PROJECT_VERSION@" "Miscellaneous"
+.SH NAME
+colon-path \- atomic subpath notation for colon-subdirs tools
+.SH DESCRIPTION
+A
+.B colon-path
+has the form
+.BR BASE:LEAF .
+The corresponding physical path is
+.BR BASE/LEAF .
+.I LEAF
+is treated as an atomic name: when placing under a destination directory, or
+when choosing names stored inside an archive, tools use
+.I LEAF
+rather than the full physical path.
+.PP
+The separator is recognized when
+.I BASE
+contains
+.B /
+or is
+.B .
+or
+.BR .. .
+For local tools
+.RB ( colon-mv ,
+.BR colon-cp ,
+\&...),
+a single
+.B :
+is also accepted when
+.I BASE
+has no slash (for example
+.BR pkg:lib/foo ).
+.PP
+.BR colon-scp
+and
+.B colon-rsync
+keep the stricter rule so that
+.I host:path
+and
+.I host::module
+are left for the underlying tools.
+URI schemes are never treated as colon-paths.
+.PP
+A leading slash on
+.I LEAF
+is ignored when joining
+.RB ( BASE:/LEAF
+is the same physical path as
+.BR BASE:LEAF ).
+.PP
+Bash completion for these tools keeps
+.B :
+inside the current word and completes
+.I LEAF
+by listing names under
+.BR BASE/ .
+.SH EXAMPLES
+.TP
+.B a/b:c/d
+Physical path
+.BR a/b/c/d ;
+atomic name
+.BR c/d .
+.TP
+.B ./pkg:lib/foo
+Physical path
+.BR ./pkg/lib/foo ;
+atomic name
+.BR lib/foo .
+.SH SEE ALSO
+.BR colon-mv (1),
+.BR colon-cp (1),
+.BR colon-zip (1),
+.BR colon-unzip (1),
+.BR colon-rm (1),
+.BR colon-rmdir (1),
+.BR colon-scp (1),
+.BR colon-rsync (1)
+.SH AUTHOR
+Written by @PROJECT_AUTHOR@ <@PROJECT_EMAIL@>.

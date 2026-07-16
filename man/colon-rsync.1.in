@@ -1,0 +1,52 @@
+.TH @PROG@ 1 "@PROJECT_YEAR@" "@PROJECT_VERSION@" "User Commands"
+.SH NAME
+@PROG@, @COLON@ \- rsync with colon-path local names
+.SH SYNOPSIS
+.B @COLON@
+.RI [ OPTION ]...
+.I SRC
+\&...
+.I DEST
+.br
+.B @PROG@
+.RI [ OPTION ]...
+\&...
+.SH DESCRIPTION
+.B @PROG@
+wraps
+.BR rsync (1)
+with colon-path rewriting for local
+.B BASE:LEAF
+arguments.
+.I host:path
+and
+.I host::module
+forms are not treated as colon-paths.
+.PP
+See
+.BR colon-path (7).
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show wrapper help and exit.
+.TP
+.B \-\-version
+Show version and exit.
+.TP
+.B \-\-colon\-dry\-run
+Print the rewritten
+.B rsync
+command without executing it.
+.PP
+Other options are passed through to
+.BR rsync (1).
+See the original manual for the complete option set.
+.SH SEE ALSO
+.BR rsync (1),
+.BR colon-scp (1),
+.BR colon-path (7)
+.SH AUTHOR
+Written by @PROJECT_AUTHOR@ <@PROJECT_EMAIL@>.
+.SH COPYRIGHT
+Copyright \(co @PROJECT_YEAR@.
+License AGPL-3.0-or-later.

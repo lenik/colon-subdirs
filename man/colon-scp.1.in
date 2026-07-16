@@ -1,0 +1,62 @@
+.TH @PROG@ 1 "@PROJECT_YEAR@" "@PROJECT_VERSION@" "User Commands"
+.SH NAME
+@PROG@, @COLON@ \- scp with colon-path local names
+.SH SYNOPSIS
+.B @COLON@
+.RI [ OPTION ]...
+.I source
+\&...
+.I target
+.br
+.B @PROG@
+.RI [ OPTION ]...
+\&...
+.SH DESCRIPTION
+.B @PROG@
+wraps
+.BR scp (1)
+with colon-path rewriting for local
+.B BASE:LEAF
+arguments (when
+.I BASE
+contains
+.BR / ).
+Forms like
+.I host:path
+(no slash before
+.BR : )
+are left unchanged for scp.
+.PP
+Destination directory placement follows the same
+.I DEST/LEAF
+rules as
+.BR colon-cp (1)
+for local destinations.
+.PP
+See
+.BR colon-path (7).
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show wrapper help and exit.
+.TP
+.B \-\-version
+Show version and exit.
+.TP
+.B \-\-colon\-dry\-run
+Print the rewritten
+.B scp
+command without executing it.
+.PP
+Other options are passed through to
+.BR scp (1).
+See the original manual for the complete option set.
+.SH SEE ALSO
+.BR scp (1),
+.BR colon-rsync (1),
+.BR colon-path (7)
+.SH AUTHOR
+Written by @PROJECT_AUTHOR@ <@PROJECT_EMAIL@>.
+.SH COPYRIGHT
+Copyright \(co @PROJECT_YEAR@.
+License AGPL-3.0-or-later.
