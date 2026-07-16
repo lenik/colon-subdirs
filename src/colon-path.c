@@ -29,7 +29,8 @@ static int looks_like_uri(const char *s) {
 
 /*
  * Find colon-path separator. Returns pointer to ':', or NULL.
- * Prefer the first qualifying ':'. Skip host:path and host::module.
+ * Leading ':' (empty BASE) counts — treated as BASE "/".
+ * Skip host:path and host::module.
  */
 static const char *find_colon_sep(const char *s) {
     if (!s || !*s || looks_like_uri(s)) {
@@ -45,7 +46,8 @@ static const char *find_colon_sep(const char *s) {
             continue;
         }
         if (p == s) {
-            continue; /* leading ':' */
+            /* :foo/bar → empty left, same as /:foo/bar */
+            return p;
         }
 
         size_t prefix_len = (size_t)(p - s);
@@ -115,13 +117,22 @@ int colon_path_parse(ColonPath *out, const char *arg) {
 
     out->is_colon = 1;
     size_t base_len = (size_t)(sep - arg);
-    out->base = malloc(base_len + 1);
+    if (base_len == 0) {
+        /* :foo/bar → BASE "/" */
+        out->base = xstrdup("/");
+    } else {
+        out->base = malloc(base_len + 1);
+        if (!out->base) {
+            colon_path_free(out);
+            return -1;
+        }
+        memcpy(out->base, arg, base_len);
+        out->base[base_len] = '\0';
+    }
     if (!out->base) {
         colon_path_free(out);
         return -1;
     }
-    memcpy(out->base, arg, base_len);
-    out->base[base_len] = '\0';
 
     out->leaf = xstrdup(sep + 1);
     if (!out->leaf) {
@@ -147,6 +158,29 @@ void colon_path_free(ColonPath *p) {
     free(p->leaf);
     free(p->physical);
     memset(p, 0, sizeof(*p));
+}
+
+char *colon_subst_slash(const char *arg) {
+    if (!arg) {
+        errno = EINVAL;
+        return NULL;
+    }
+    const char *sep = strchr(arg, ':');
+    if (!sep) {
+        return xstrdup(arg);
+    }
+    /* Do not touch URI schemes or host::module */
+    if (looks_like_uri(arg) || strstr(arg, "::")) {
+        return xstrdup(arg);
+    }
+    size_t n = strlen(arg);
+    char *r = malloc(n + 1);
+    if (!r) {
+        return NULL;
+    }
+    memcpy(r, arg, n + 1);
+    r[sep - arg] = '/';
+    return r;
 }
 
 char *colon_join(const char *dir, const char *leaf) {
