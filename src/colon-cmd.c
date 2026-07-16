@@ -24,6 +24,34 @@
 
 define_logger();
 
+static const char *g_argv0;
+
+/* COLON_WRAP: unset → PATH stem; "0" → rewrite; else → exec that name */
+static int wrap_is_rewrite(void) {
+    const char *env = getenv("COLON_WRAP");
+    return env && strcmp(env, "0") == 0;
+}
+
+static const char *wrap_exec_name(const ColonCmdDesc *desc) {
+    const char *env = getenv("COLON_WRAP");
+    if (env && env[0] && strcmp(env, "0") != 0) {
+        return env;
+    }
+    /* Stem from $0: colon-mv / :mv → mv */
+    const char *base = g_argv0 ? g_argv0 : desc->real_cmd;
+    const char *slash = strrchr(base, '/');
+    if (slash) {
+        base = slash + 1;
+    }
+    if (strncmp(base, "colon-", 6) == 0) {
+        return base + 6;
+    }
+    if (base[0] == ':' && base[1] != '\0') {
+        return base + 1;
+    }
+    return desc->real_cmd;
+}
+
 static char *xstrdup(const char *s) {
     size_t n = strlen(s) + 1;
     char *d = malloc(n);
@@ -173,6 +201,10 @@ static void print_help(const ColonCmdDesc *desc) {
     fputs(_("  -h, --help           show this help and exit\n"), stdout);
     fputs(_("      --version        show version and exit\n"), stdout);
     fputs(_("      --colon-dry-run  print rewritten command, do not execute\n"), stdout);
+    fputs(_("Environment:\n"), stdout);
+    fputs(_("  COLON_WRAP=0       use built-in rewrite implementation\n"), stdout);
+    fputs(_("  COLON_WRAP=<name>  exec <name> instead of the PATH tool\n"), stdout);
+    fputs(_("  (unset)            exec stem of $0 from PATH (colon-mv → mv)\n"), stdout);
     fputc('\n', stdout);
     printf(_("Other options are passed through to %s. See %s(1) for details.\n"),
            desc->real_cmd, desc->real_cmd);
@@ -311,7 +343,7 @@ static int parse_colon_arg(const ColonCmdDesc *desc, ColonPath *out, const char 
     }
 
     const char *sep = strchr(arg, ':');
-    if (!sep || sep == arg || looks_like_uri(arg) || strstr(arg, "::")) {
+    if (!sep || looks_like_uri(arg) || strstr(arg, "::")) {
         return 0;
     }
 
@@ -323,13 +355,19 @@ static int parse_colon_arg(const ColonCmdDesc *desc, ColonPath *out, const char 
     }
     out->is_colon = 1;
     size_t base_len = (size_t)(sep - arg);
-    out->base = malloc(base_len + 1);
+    if (base_len == 0) {
+        out->base = xstrdup("/");
+    } else {
+        out->base = malloc(base_len + 1);
+        if (out->base) {
+            memcpy(out->base, arg, base_len);
+            out->base[base_len] = '\0';
+        }
+    }
     if (!out->base) {
         colon_path_free(out);
         return -1;
     }
-    memcpy(out->base, arg, base_len);
-    out->base[base_len] = '\0';
 
     out->leaf = xstrdup(sep + 1);
     if (!out->leaf) {
@@ -399,9 +437,21 @@ static int build_srcdest_pairs(const ColonCmdDesc *desc, ArgList *opts, ArgList 
     size_t nsrc;
     const char *dest_base;
 
+    int dest_use_subst =
+        strcmp(desc->real_cmd, "mv") == 0 || strcmp(desc->real_cmd, "cp") == 0;
+
     if (has_t && target_dir) {
         if (parse_colon_arg(desc, &dest_dir, target_dir) != 0) {
             return -1;
+        }
+        if (dest_use_subst) {
+            char *sub = colon_subst_slash(target_dir);
+            if (!sub) {
+                colon_path_free(&dest_dir);
+                return -1;
+            }
+            free(dest_dir.physical);
+            dest_dir.physical = sub;
         }
         dest_base = dest_dir.physical;
         nsrc = files->n;
@@ -412,6 +462,15 @@ static int build_srcdest_pairs(const ColonCmdDesc *desc, ArgList *opts, ArgList 
         }
         if (parse_colon_arg(desc, &dest_dir, files->v[files->n - 1]) != 0) {
             return -1;
+        }
+        if (dest_use_subst) {
+            char *sub = colon_subst_slash(files->v[files->n - 1]);
+            if (!sub) {
+                colon_path_free(&dest_dir);
+                return -1;
+            }
+            free(dest_dir.physical);
+            dest_dir.physical = sub;
         }
         dest_base = dest_dir.physical;
         nsrc = files->n - 1;
@@ -785,7 +844,9 @@ out:
 
 static int run_exec(const ColonCmdDesc *desc, ArgList *opts, char **file_args, int dry_run) {
     ArgList argv = {0};
-    if (arglist_push(&argv, xstrdup(desc->real_cmd)) != 0) {
+    const char *cmd_name = wrap_is_rewrite() ? desc->real_cmd : wrap_exec_name(desc);
+
+    if (arglist_push(&argv, xstrdup(cmd_name)) != 0) {
         return -1;
     }
     for (size_t i = 0; i < opts->n; i++) {
@@ -802,6 +863,9 @@ static int run_exec(const ColonCmdDesc *desc, ArgList *opts, char **file_args, i
     }
 
     if (dry_run) {
+        if (wrap_is_rewrite()) {
+            fputs("(rewrite) ", stdout);
+        }
         for (size_t i = 0; i < argv.n; i++) {
             if (i) {
                 fputc(' ', stdout);
@@ -813,8 +877,19 @@ static int run_exec(const ColonCmdDesc *desc, ArgList *opts, char **file_args, i
         return 0;
     }
 
-    execvp(desc->real_cmd, argv.v);
-    fprintf(stderr, "%s: %s: %s\n", desc->prog, desc->real_cmd, strerror(errno));
+    if (wrap_is_rewrite()) {
+        if (!desc->rewrite) {
+            fprintf(stderr, "%s: no rewrite implementation for %s\n", desc->prog, desc->real_cmd);
+            arglist_free(&argv, 1);
+            return 127;
+        }
+        int rc = desc->rewrite((int)argv.n, argv.v);
+        arglist_free(&argv, 1);
+        return rc;
+    }
+
+    execvp(cmd_name, argv.v);
+    fprintf(stderr, "%s: %s: %s\n", desc->prog, cmd_name, strerror(errno));
     arglist_free(&argv, 1);
     return 127;
 }
@@ -1020,7 +1095,8 @@ static int do_zip(const ColonCmdDesc *desc, ArgList *opts, ArgList *files, int d
             _exit(127);
         }
         ArgList argv = {0};
-        arglist_push(&argv, xstrdup(desc->real_cmd));
+        const char *zcmd = wrap_is_rewrite() ? desc->real_cmd : wrap_exec_name(desc);
+        arglist_push(&argv, xstrdup(zcmd));
         int have_r = 0;
         for (size_t i = 0; i < opts->n; i++) {
             if (strcmp(opts->v[i], "-r") == 0 || strcmp(opts->v[i], "-R") == 0 ||
@@ -1037,7 +1113,13 @@ static int do_zip(const ColonCmdDesc *desc, ArgList *opts, ArgList *files, int d
         for (size_t i = 0; i < leafs.n; i++) {
             arglist_push(&argv, xstrdup(leafs.v[i]));
         }
-        execvp(desc->real_cmd, argv.v);
+        if (wrap_is_rewrite()) {
+            if (!desc->rewrite) {
+                _exit(127);
+            }
+            _exit(desc->rewrite((int)argv.n, argv.v));
+        }
+        execvp(zcmd, argv.v);
         _exit(127);
     }
     int st = 0;
@@ -1140,7 +1222,8 @@ static int do_unzip(const ColonCmdDesc *desc, ArgList *opts, ArgList *files, int
     /* unzip -d tmpdir zipfile members... */
     {
         ArgList argv = {0};
-        arglist_push(&argv, xstrdup("unzip"));
+        const char *ucmd = wrap_is_rewrite() ? desc->real_cmd : wrap_exec_name(desc);
+        arglist_push(&argv, xstrdup(ucmd));
         for (size_t i = 0; i < opts->n; i++) {
             arglist_push(&argv, xstrdup(opts->v[i]));
         }
@@ -1151,22 +1234,35 @@ static int do_unzip(const ColonCmdDesc *desc, ArgList *opts, ArgList *files, int
             arglist_push(&argv, xstrdup(members.v[i]));
         }
 
-        pid_t pid = fork();
-        if (pid < 0) {
+        if (wrap_is_rewrite()) {
+            if (!desc->rewrite) {
+                arglist_free(&argv, 1);
+                goto out;
+            }
+            int r = desc->rewrite((int)argv.n, argv.v);
             arglist_free(&argv, 1);
-            goto out;
-        }
-        if (pid == 0) {
-            execvp("unzip", argv.v);
-            _exit(127);
-        }
-        int st = 0;
-        waitpid(pid, &st, 0);
-        arglist_free(&argv, 1);
-        /* unzip: 0 ok, 1 warnings, 11 no matches for some patterns */
-        if (!WIFEXITED(st) || (WEXITSTATUS(st) > 1 && WEXITSTATUS(st) != 11)) {
-            rc = WIFEXITED(st) ? WEXITSTATUS(st) : 1;
-            goto out;
+            if (r > 1) {
+                rc = r;
+                goto out;
+            }
+        } else {
+            pid_t pid = fork();
+            if (pid < 0) {
+                arglist_free(&argv, 1);
+                goto out;
+            }
+            if (pid == 0) {
+                execvp(ucmd, argv.v);
+                _exit(127);
+            }
+            int st = 0;
+            waitpid(pid, &st, 0);
+            arglist_free(&argv, 1);
+            /* unzip: 0 ok, 1 warnings, 11 no matches for some patterns */
+            if (!WIFEXITED(st) || (WEXITSTATUS(st) > 1 && WEXITSTATUS(st) != 11)) {
+                rc = WIFEXITED(st) ? WEXITSTATUS(st) : 1;
+                goto out;
+            }
         }
     }
 
@@ -1209,6 +1305,7 @@ out:
 }
 
 int colon_cmd_main(const ColonCmdDesc *desc, int argc, char **argv) {
+    g_argv0 = (argv && argv[0]) ? argv[0] : desc->prog;
     init_i18n(LOCALEDIR);
 
     ArgList opts = {0};

@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
         .colon = ":mv",
         .real_cmd = "mv",
         .style = COLON_STYLE_SRCDEST,
+        .rewrite = rewrite_mv,
         .short_arg_opts = "St",
         .opt_args = opt_args,
         .usage_extra =

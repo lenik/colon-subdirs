@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
         .colon = ":zip",
         .real_cmd = "zip",
         .style = COLON_STYLE_ZIP,
+        .rewrite = rewrite_zip,
         /* zip option letters that take a separate argument (common set) */
         .short_arg_opts = "bntdP",
         .opt_args = opt_args,

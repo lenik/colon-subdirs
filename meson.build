@@ -9,13 +9,13 @@ project(
             v=${v#v}
             if [ -n "$v" ]; then
                 if [ "${v%.*}" = "$v" ]; then
-                    v="0.1.0-$v"
+                    v="1.1.0-$v"
                 fi
                 printf "%s" "$v"
                 exit 0
             fi
         fi
-        echo "0.1.0"
+        echo "1.1.0"
         ''',
         check: false,
     ).stdout().strip(),
@@ -87,9 +87,13 @@ commands = [
 ]
 
 foreach cmd : commands
+    rewrite_sources = ['src/rewrite/' + cmd + '.c']
+    if cmd == 'scp' or cmd == 'rsync'
+        rewrite_sources += 'src/rewrite/cp.c'
+    endif
     exe = executable(
         'colon-' + cmd,
-        ['src/colon-' + cmd + '.c'] + common_sources,
+        ['src/colon-' + cmd + '.c'] + common_sources + rewrite_sources,
         c_args: c_args,
         c_pch: c_pch,
         include_directories: lib_inc,

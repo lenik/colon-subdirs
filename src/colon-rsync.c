@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
         .colon = ":rsync",
         .real_cmd = "rsync",
         .style = COLON_STYLE_SRCDEST,
+        .rewrite = rewrite_rsync,
         .short_arg_opts = "e",
         .opt_args = opt_args,
         .usage_extra =

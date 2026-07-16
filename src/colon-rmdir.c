@@ -19,6 +19,7 @@ int main(int argc, char **argv) {
         .colon = ":rmdir",
         .real_cmd = "rmdir",
         .style = COLON_STYLE_RMDIR,
+        .rewrite = rewrite_rmdir,
         .short_arg_opts = "",
         .opt_args = opt_args,
         .usage_extra =

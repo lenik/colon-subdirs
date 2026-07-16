@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
         .colon = ":scp",
         .real_cmd = "scp",
         .style = COLON_STYLE_SRCDEST,
+        .rewrite = rewrite_scp,
         .short_arg_opts = "cDFiJloPSX",
         .opt_args = opt_args,
         .usage_extra =

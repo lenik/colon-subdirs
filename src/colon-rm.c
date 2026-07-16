@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
         .colon = ":rm",
         .real_cmd = "rm",
         .style = COLON_STYLE_RM,
+        .rewrite = rewrite_rm,
         .short_arg_opts = "",
         .opt_args = opt_args,
         .usage_extra =

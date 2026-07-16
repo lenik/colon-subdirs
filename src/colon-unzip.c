@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
         .colon = ":unzip",
         .real_cmd = "unzip",
         .style = COLON_STYLE_UNZIP,
+        .rewrite = rewrite_unzip,
         .short_arg_opts = "dxPIOW",
         .opt_args = opt_args,
         .usage_extra =

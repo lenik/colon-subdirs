@@ -7,6 +7,8 @@
 #ifndef COLON_CMD_H
 #define COLON_CMD_H
 
+#include "rewrite.h"
+
 /*
  * How file arguments are rewritten before exec'ing the real tool.
  */
@@ -37,8 +39,9 @@ typedef struct ColonOptArg {
 typedef struct ColonCmdDesc {
     const char *prog;      /* "colon-mv" */
     const char *colon;     /* ":mv" */
-    const char *real_cmd;  /* "mv" */
+    const char *real_cmd;  /* "mv" — default PATH stem when COLON_WRAP unset */
     ColonStyle style;
+    ColonRewriteFn rewrite; /* used when COLON_WRAP=0 */
     /* Short options that take an argument (getopt-style string without ':') —
      * characters listed here consume the next argv element when seen as -X.
      * Long options with =arg or following arg listed in opt_args. */
@@ -47,7 +50,12 @@ typedef struct ColonCmdDesc {
     const char *usage_extra;     /* one-line colon-path hint for --help */
 } ColonCmdDesc;
 
-/* Entry point used by each colon-* binary. Does not return on successful exec. */
+/*
+ * COLON_WRAP:
+ *   unset     → exec stem from $0 (colon-mv → mv) via PATH
+ *   <rename>  → exec <rename>
+ *   0         → call desc->rewrite
+ */
 int colon_cmd_main(const ColonCmdDesc *desc, int argc, char **argv);
 
 #endif /* COLON_CMD_H */

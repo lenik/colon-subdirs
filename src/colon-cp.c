@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
         .colon = ":cp",
         .real_cmd = "cp",
         .style = COLON_STYLE_SRCDEST,
+        .rewrite = rewrite_cp,
         .short_arg_opts = "StZ",
         .opt_args = opt_args,
         .usage_extra =
