@@ -1,0 +1,7 @@
+colon-subdirs (1.0.0) UNRELEASED; urgency=medium
+
+  * Initial release: colon-path wrappers for mv, cp, zip, rm, rmdir, scp,
+    unzip, and rsync. Each command is built standalone (no shared library).
+    Installs :cmd symlinks to colon-cmd binaries.
+
+ -- Lenik (谢继雷) <lenik@bodz.net>  Fri, 17 Jul 2026 01:00:00 +0800

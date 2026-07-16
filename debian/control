@@ -1,0 +1,21 @@
+Source: colon-subdirs
+Section: utils
+Priority: optional
+Maintainer: Lenik <lenik@bodz.net>
+Build-Depends: debhelper-compat (= 13), meson, ninja-build, pkgconf, check, libbas-c-dev
+Standards-Version: 4.6.0
+Homepage: https://github.com/lenik/colon-subdirs
+Rules-Requires-Root: no
+
+Package: colon-subdirs
+Architecture: any
+Depends:
+    ${shlibs:Depends},
+    ${misc:Depends},
+    zip,
+    unzip
+Recommends: rsync, openssh-client
+Description: colon-path wrappers for common file tools
+ colon-subdirs provides :mv, :cp, :zip, and related commands that treat the
+ subpath after ':' as an atomic name, then invoke the underlying Unix tool
+ with rewritten arguments.
