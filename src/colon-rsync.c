@@ -43,6 +43,33 @@ static const ColonOptArg opt_args[] = {
     {0, NULL},
 };
 
+static const char options_help[] =
+    "Options:\n"
+    "  -a, --archive           archive mode (preserves most attributes)\n"
+    "  -v, --verbose           increase verbosity\n"
+    "  -z, --compress          compress file data during transfer\n"
+    "  -r, --recursive         recurse into directories\n"
+    "  -l, --links             copy symlinks as symlinks\n"
+    "  -p, --perms             preserve permissions\n"
+    "  -t, --times             preserve modification times\n"
+    "  -g, --group             preserve group\n"
+    "  -o, --owner             preserve owner (super-user only)\n"
+    "  -D, --devices           preserve device files (super-user only)\n"
+    "  -H, --hard-links        preserve hard links\n"
+    "  -A, --acls              preserve ACLs\n"
+    "  -X, --xattrs            preserve extended attributes\n"
+    "  -e, --rsh=COMMAND       specify remote shell (or --rsh=COMMAND)\n"
+    "      --delete            delete extraneous files from destination\n"
+    "      --exclude=PATTERN   exclude files matching PATTERN\n"
+    "      --include=PATTERN   include files matching PATTERN\n"
+    "      --progress          show progress during transfer\n"
+    "  -n, --dry-run           perform a trial run with no changes made\n"
+    "      --dry-run           perform a trial run with no changes made\n"
+    "  -h, --help              show rsync help (not wrapper help)\n"
+    "\n"
+    "Local colon-path operands use BASE:LEAF when BASE contains '/'.\n"
+    "Remote host:path and host::module require COLON_WRAP=1 (or COLON_WRAP=rsync).\n";
+
 int main(int argc, char **argv) {
     static const ColonCmdDesc desc = {
         .prog = "colon-rsync",
@@ -55,6 +82,7 @@ int main(int argc, char **argv) {
         .usage_extra =
             "  Colon-path uses BASE:LEAF when BASE contains '/'.\n"
             "  host:path and host::module are left for rsync.",
+        .options_help = options_help,
     };
     return colon_cmd_main(&desc, argc, argv);
 }

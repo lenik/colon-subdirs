@@ -25,6 +25,36 @@ static const ColonOptArg opt_args[] = {
     {0, NULL},
 };
 
+static const char options_help[] =
+    "Options:\n"
+    "  -a, --archive           same as -dR --preserve=all\n"
+    "  -b, --backup[=CONTROL]  make a backup of each existing destination file\n"
+    "  -d                      same as --no-dereference --preserve=links\n"
+    "  -f, --force             if an existing destination cannot be opened,\n"
+    "                          remove it and try again\n"
+    "  -i, --interactive       prompt before overwrite\n"
+    "  -l, --link              hard-link files instead of copying\n"
+    "  -H, --dereference       follow command-line symbolic links\n"
+    "  -L, --dereference       always follow symbolic links in SOURCE\n"
+    "  -n, --no-clobber        do not overwrite an existing file\n"
+    "  -P, --no-dereference    never follow symbolic links in SOURCE\n"
+    "  -p                      same as --preserve=mode,ownership,timestamps\n"
+    "      --preserve[=ATTR]   preserve attributes (default: mode,ownership,\n"
+    "                          timestamps); ATTR may also include context,\n"
+    "                          links, xattr, all\n"
+    "  -r, -R, --recursive     copy directories recursively\n"
+    "  -s, --symbolic-link     make symbolic links instead of copying\n"
+    "  -S, --suffix=SUFFIX     override the usual backup suffix\n"
+    "  -t, --target-directory=DIR  copy all sources into DIR\n"
+    "  -T, --no-target-directory   treat DEST as a normal file\n"
+    "  -u, --update[=WHEN]     copy only when SOURCE is newer (or dest missing)\n"
+    "  -v, --verbose           explain what is being done\n"
+    "  -x, --one-file-system   stay on this file system\n"
+    "  -Z, --context           set SELinux security context of destination\n"
+    "\n"
+    "Built-in rewrite supports a subset (-f/-i/-n/-r/-R/-a/-v/-t/-T). When\n"
+    "COLON_WRAP=1, all options are passed to the PATH cp.\n";
+
 int main(int argc, char **argv) {
     static const ColonCmdDesc desc = {
         .prog = "colon-cp",
@@ -35,7 +65,9 @@ int main(int argc, char **argv) {
         .short_arg_opts = "StZ",
         .opt_args = opt_args,
         .usage_extra =
-            "  :cp a/b:c/d ../x    →  cp a/b/c/d ../x/c/d  (mkdir ../x/c)",
+            "Examples:\n"
+            "  :cp -a a/b:c/d ../x  →  cp -a a/b/c/d ../x/c/d",
+        .options_help = options_help,
     };
     return colon_cmd_main(&desc, argc, argv);
 }
