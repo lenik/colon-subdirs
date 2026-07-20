@@ -13,8 +13,22 @@
 \&...
 .SH DESCRIPTION
 .B @PROG@
-is a colon-path wrapper around
+is a colon-path aware wrapper around
 .BR zip (1).
+By default (when
+.B COLON_WRAP
+is unset), a built-in rewrite implementation stores colon-path sources
+under their
+.I LEAF
+names in the archive.
+Set
+.B COLON_WRAP=1
+to invoke
+.B zip
+from
+.B PATH
+instead.
+.PP
 Sources given as
 .B BASE:LEAF
 are stored in the archive under
@@ -51,10 +65,90 @@ Show version and exit.
 Show the planned
 .B zip
 invocation without executing it.
-.PP
-Other options are passed through to
-.BR zip (1).
-See the original manual for the complete option set.
+When using the built-in rewrite (default), output is prefixed with
+.BR (rewrite) .
+.TP
+.BR \-r ", " \-\-recurse\-paths
+Recurse into directories.
+.TP
+.BR \-q ", " \-\-quiet
+Quiet mode.
+.TP
+.BR \-u ", " \-\-update
+Update only if archive member is newer.
+.TP
+.BR \-d ", " \-\-delete
+Delete entries in zipfile that are not on disk.
+.TP
+.BR \-m ", " \-\-move
+Move files into zipfile (delete originals).
+.TP
+.BR \-j ", " \-\-junk\-paths
+Store only the basename of each file.
+.TP
+.BR \-y ", " \-\-symlinks
+Store symlinks as the link instead of the file.
+.TP
+.BR \-x ", " \-\-exclude=GLOB
+Exclude files matching
+.IR GLOB .
+.TP
+.BR \-i ", " \-\-include=GLOB
+Include only files matching
+.IR GLOB .
+.TP
+.BR \-0\ .\.\-9
+Compression level (0=store, 9=best).
+.TP
+.BR \-e ", " \-\-encrypt
+Encrypt archive entries.
+.TP
+.BR \-P ", " \-\-password=PASS
+Set password for encryption.
+.TP
+.BR \-F ", " \-\-fix
+Try to repair a damaged archive.
+.TP
+.B \-FF
+Try harder to repair a damaged archive.
+.TP
+.BR \-A ", " \-\-adjust\-suffix
+Adjust self-extracting exe suffix.
+.TP
+.BR \-FS ", " \-\-filesync
+Sync changed files only.
+.TP
+.BR \-X ", " \-\-no\-extra
+Do not save extra file attributes.
+.TP
+.BR \-g ", " \-\-grow
+Grow existing archive.
+.TP
+.BR \-o ", " \-\-latest\-time
+Set zip entry time to newest file time.
+.TP
+.BR \-b ", " \-\-temp\-path=DIR
+Use
+.I DIR
+for temporary files.
+.TP
+.BR \-n ", " \-\-suffix=SUFFIX
+Suffix for backup files.
+.TP
+.BR \-t ", " \-\-test
+Test archive integrity.
+.SH ENVIRONMENT
+.TP
+.B COLON_WRAP
+When unset (default), use the built-in rewrite implementation.
+When set to
+.BR 1 ,
+exec the stem of
+.B $0
+from
+.B PATH
+(\fBcolon-zip\fR → \fBzip\fR).
+When set to a program name, exec that program instead.
 .SH SEE ALSO
 .BR zip (1),
 .BR colon-unzip (1),

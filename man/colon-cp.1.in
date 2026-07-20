@@ -17,11 +17,19 @@
 \&...
 .SH DESCRIPTION
 .B @PROG@
-is a colon-path wrapper around
+is a colon-path aware wrapper around
 .BR cp (1).
-It rewrites path arguments, creates missing parent directories for
-destinations, then executes
-.BR cp .
+By default (when
+.B COLON_WRAP
+is unset), a built-in rewrite implementation rewrites path arguments,
+creates missing parent directories for destinations, and performs the copy.
+Set
+.B COLON_WRAP=1
+to invoke
+.B cp
+from
+.B PATH
+instead.
 .PP
 See
 .BR colon-path (7)
@@ -48,13 +56,95 @@ Show wrapper help and exit.
 Show version and exit.
 .TP
 .B \-\-colon\-dry\-run
-Print the rewritten
-.B cp
-command without executing it.
-.PP
-All other options are passed through to
-.BR cp (1).
-See the original manual for the complete option set.
+Print the planned command without executing it.
+When using the built-in rewrite (default), output is prefixed with
+.BR (rewrite) .
+.TP
+.BR \-a ", " \-\-archive
+Same as
+.BR \-dR " " \-\-preserve=all .
+.TP
+.BR \-b ", " \-\-backup[=CONTROL]
+Make a backup of each existing destination file.
+.TP
+.B \-d
+Same as
+.BR \-\-no\-dereference " " \-\-preserve=links .
+.TP
+.BR \-f ", " \-\-force
+If an existing destination cannot be opened, remove it and try again.
+.TP
+.BR \-i ", " \-\-interactive
+Prompt before overwrite.
+.TP
+.BR \-l ", " \-\-link
+Hard-link files instead of copying.
+.TP
+.BR \-H ", " \-\-dereference
+Follow command-line symbolic links.
+.TP
+.BR \-L ", " \-\-dereference
+Always follow symbolic links in
+.IR SOURCE .
+.TP
+.BR \-n ", " \-\-no\-clobber
+Do not overwrite an existing file.
+.TP
+.BR \-P ", " \-\-no\-dereference
+Never follow symbolic links in
+.IR SOURCE .
+.TP
+.B \-p
+Same as
+.BR \-\-preserve=mode,ownership,timestamps .
+.TP
+.B \-\-preserve[=ATTR]
+Preserve attributes (default: mode, ownership, timestamps); ATTR may also
+include context, links, xattr, all.
+.TP
+.BR \-r ", " \-R ", " \-\-recursive
+Copy directories recursively.
+.TP
+.BR \-s ", " \-\-symbolic\-link
+Make symbolic links instead of copying.
+.TP
+.BR \-S ", " \-\-suffix=SUFFIX
+Override the usual backup suffix.
+.TP
+.BR \-t ", " \-\-target\-directory=DIR
+Copy all sources into
+.IR DIR .
+.TP
+.BR \-T ", " \-\-no\-target\-directory
+Treat
+.I DEST
+as a normal file.
+.TP
+.BR \-u ", " \-\-update[=WHEN]
+Copy only when
+.I SOURCE
+is newer (or destination is missing).
+.TP
+.BR \-v ", " \-\-verbose
+Explain what is being done.
+.TP
+.BR \-x ", " \-\-one\-file\-system
+Stay on this file system.
+.TP
+.BR \-Z ", " \-\-context
+Set SELinux security context of destination.
+.SH ENVIRONMENT
+.TP
+.B COLON_WRAP
+When unset (default), use the built-in rewrite implementation.
+When set to
+.BR 1 ,
+exec the stem of
+.B $0
+from
+.B PATH
+(\fBcolon-cp\fR → \fBcp\fR).
+When set to a program name, exec that program instead.
 .SH SEE ALSO
 .BR cp (1),
 .BR colon-path (7),

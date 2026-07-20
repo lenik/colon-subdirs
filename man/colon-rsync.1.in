@@ -13,9 +13,25 @@
 \&...
 .SH DESCRIPTION
 .B @PROG@
-wraps
-.BR rsync (1)
-with colon-path rewriting for local
+is a colon-path aware wrapper around
+.BR rsync (1).
+By default (when
+.B COLON_WRAP
+is unset), a built-in rewrite implementation handles local colon-path
+arguments.
+Set
+.B COLON_WRAP=1
+to invoke
+.B rsync
+from
+.B PATH
+(including remote
+.I host:path
+and
+.I host::module
+forms).
+.PP
+Colon-path rewriting applies to local
 .B BASE:LEAF
 arguments.
 .I host:path
@@ -34,13 +50,82 @@ Show wrapper help and exit.
 Show version and exit.
 .TP
 .B \-\-colon\-dry\-run
-Print the rewritten
-.B rsync
-command without executing it.
-.PP
-Other options are passed through to
-.BR rsync (1).
-See the original manual for the complete option set.
+Print the rewritten command without executing it.
+When using the built-in rewrite (default), output is prefixed with
+.BR (rewrite) .
+.TP
+.BR \-a ", " \-\-archive
+Archive mode (preserves most attributes).
+.TP
+.BR \-v ", " \-\-verbose
+Increase verbosity.
+.TP
+.BR \-z ", " \-\-compress
+Compress file data during transfer.
+.TP
+.BR \-r ", " \-\-recursive
+Recurse into directories.
+.TP
+.BR \-l ", " \-\-links
+Copy symlinks as symlinks.
+.TP
+.BR \-p ", " \-\-perms
+Preserve permissions.
+.TP
+.BR \-t ", " \-\-times
+Preserve modification times.
+.TP
+.BR \-g ", " \-\-group
+Preserve group.
+.TP
+.BR \-o ", " \-\-owner
+Preserve owner (super-user only).
+.TP
+.BR \-D ", " \-\-devices
+Preserve device files (super-user only).
+.TP
+.BR \-H ", " \-\-hard\-links
+Preserve hard links.
+.TP
+.BR \-A ", " \-\-acls
+Preserve ACLs.
+.TP
+.BR \-X ", " \-\-xattrs
+Preserve extended attributes.
+.TP
+.BR \-e ", " \-\-rsh=COMMAND
+Specify remote shell (or
+.BR \-\-rsh=COMMAND ).
+.TP
+.B \-\-delete
+Delete extraneous files from destination.
+.TP
+.B \-\-exclude=PATTERN
+Exclude files matching
+.IR PATTERN .
+.TP
+.B \-\-include=PATTERN
+Include files matching
+.IR PATTERN .
+.TP
+.B \-\-progress
+Show progress during transfer.
+.TP
+.BR \-n ", " \-\-dry\-run
+Perform a trial run with no changes made.
+.SH ENVIRONMENT
+.TP
+.B COLON_WRAP
+When unset (default), use the built-in rewrite implementation (local only;
+remote paths require external rsync).
+When set to
+.BR 1 ,
+exec the stem of
+.B $0
+from
+.B PATH
+(\fBcolon-rsync\fR → \fBrsync\fR).
+When set to a program name, exec that program instead.
 .SH SEE ALSO
 .BR rsync (1),
 .BR colon-scp (1),

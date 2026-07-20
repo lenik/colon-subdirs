@@ -17,11 +17,19 @@
 \&...
 .SH DESCRIPTION
 .B @PROG@
-is a colon-path wrapper around
+is a colon-path aware wrapper around
 .BR mv (1).
-It rewrites path arguments, creates missing parent directories for
-destinations, then executes
-.BR mv .
+By default (when
+.B COLON_WRAP
+is unset), a built-in rewrite implementation rewrites path arguments,
+creates missing parent directories for destinations, and performs the move.
+Set
+.B COLON_WRAP=1
+to invoke
+.B mv
+from
+.B PATH
+instead.
 .PP
 See
 .BR colon-path (7)
@@ -53,26 +61,60 @@ Show wrapper help and exit.
 Show version and exit.
 .TP
 .B \-\-colon\-dry\-run
-Print the rewritten
-.B mv
-command without executing it.
-.PP
-All other options are passed through to
-.BR mv (1).
-This page only lists wrapper options; see the original manual for the complete
-set.
+Print the planned command without executing it.
+When using the built-in rewrite (default), output is prefixed with
+.BR (rewrite) .
+.TP
+.BR \-b ", " \-\-backup[=CONTROL]
+Make a backup of each existing destination file.
+.TP
+.BR \-f ", " \-\-force
+Do not prompt before overwriting.
+.TP
+.BR \-i ", " \-\-interactive
+Prompt before overwrite.
+.TP
+.BR \-n ", " \-\-no\-clobber
+Do not overwrite an existing file.
+.TP
+.BR \-t ", " \-\-target\-directory=DIR
+Move all sources into
+.IR DIR .
+.TP
+.BR \-T ", " \-\-no\-target\-directory
+Treat
+.I DEST
+as a normal file.
+.TP
+.BR \-u ", " \-\-update[=WHEN]
+Move only when
+.I SOURCE
+is newer (or destination is missing).
+.TP
+.BR \-v ", " \-\-verbose
+Explain what is being done.
+.TP
+.BR \-S ", " \-\-suffix=SUFFIX
+Override the usual backup suffix.
+.TP
+.B \-\-strip\-trailing\-slashes
+Remove trailing slashes from each
+.IR SOURCE .
+.TP
+.BR \-Z ", " \-\-context
+Set SELinux context of destination to default.
 .SH ENVIRONMENT
 .TP
 .B COLON_WRAP
-When unset, the wrapper executes
-.BR mv (1)
-from
-.BR PATH .
-When set to a program name, that program is executed instead.
+When unset (default), use the built-in rewrite implementation.
 When set to
-.BR 0 ,
-the built-in rewrite implementation is used (no external
-.BR mv ).
+.BR 1 ,
+exec the stem of
+.B $0
+from
+.B PATH
+(\fBcolon-mv\fR → \fBmv\fR).
+When set to a program name, exec that program instead.
 .SH SEE ALSO
 .BR mv (1),
 .BR colon-path (7),

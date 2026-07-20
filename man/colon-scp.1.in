@@ -13,9 +13,25 @@
 \&...
 .SH DESCRIPTION
 .B @PROG@
-wraps
-.BR scp (1)
-with colon-path rewriting for local
+is a colon-path aware wrapper around
+.BR scp (1).
+By default (when
+.B COLON_WRAP
+is unset), a built-in rewrite implementation handles local colon-path
+arguments and delegates to
+.B cp
+for local copies.
+Set
+.B COLON_WRAP=1
+to invoke
+.B scp
+from
+.B PATH
+(including remote
+.I host:path
+forms).
+.PP
+Colon-path rewriting applies to local
 .B BASE:LEAF
 arguments (when
 .I BASE
@@ -44,13 +60,81 @@ Show wrapper help and exit.
 Show version and exit.
 .TP
 .B \-\-colon\-dry\-run
-Print the rewritten
-.B scp
-command without executing it.
-.PP
-Other options are passed through to
-.BR scp (1).
-See the original manual for the complete option set.
+Print the rewritten command without executing it.
+When using the built-in rewrite (default), output is prefixed with
+.BR (rewrite) .
+.TP
+.B \-3
+Route through the local host on both ends.
+.TP
+.B \-4
+Force IPv4 addresses only.
+.TP
+.B \-6
+Force IPv6 addresses only.
+.TP
+.B \-A
+Forward agent authentication.
+.TP
+.B \-C
+Enable compression.
+.TP
+.B \-O
+Use legacy scp protocol.
+.TP
+.B \-p
+Preserve modification times, modes, and xattrs.
+.TP
+.B \-q
+Quiet mode.
+.TP
+.B \-r
+Recursively copy directories.
+.TP
+.B \-T
+Disable strict filename checking.
+.TP
+.B \-v
+Verbose mode.
+.TP
+.BR \-c " " I CIPHER
+Select cipher.
+.TP
+.BR \-F " " I ssh_config
+Specify alternate ssh_config file.
+.TP
+.BR \-i " " I identity_file
+Select identity (private key) file.
+.TP
+.BR \-J " " I destination
+Jump host for ProxyJump.
+.TP
+.BR \-l " " I limit
+Limit bandwidth (Kbit/s).
+.TP
+.BR \-o " " I ssh_option
+Pass ssh_option to ssh.
+.TP
+.BR \-P " " I port
+Specify port (note uppercase P).
+.TP
+.BR \-S " " I program
+Specify remote shell program.
+.SH ENVIRONMENT
+.TP
+.B COLON_WRAP
+When unset (default), use the built-in rewrite implementation (local only;
+remote
+.I host:path
+requires external scp).
+When set to
+.BR 1 ,
+exec the stem of
+.B $0
+from
+.B PATH
+(\fBcolon-scp\fR → \fBscp\fR).
+When set to a program name, exec that program instead.
 .SH SEE ALSO
 .BR scp (1),
 .BR colon-rsync (1),

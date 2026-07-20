@@ -40,18 +40,18 @@ The `:` separator is used only when `BASE` contains `/` (or is `.` / `..`), so
 ```
 
 Each wrapper parses options similarly to the underlying tool, creates needed
-parent directories, rewrites file arguments, and `exec`s the real command.
-Use `--colon-dry-run` to print the rewritten command. Full option details live
-in the original manuals (`mv(1)`, `zip(1)`, …); the colon-* man pages document
-colon-path behavior and wrapper flags.
+parent directories, rewrites file arguments, and runs the operation (built-in
+rewrite by default, or the PATH tool when `COLON_WRAP=1`).
+Use `--colon-dry-run` to print the planned command. Full options are documented
+in `--help` and the colon-* man pages.
 
 ### `COLON_WRAP`
 
 | Value | Behavior |
 |-------|----------|
-| unset | `exec` the stem of `$0` from `PATH` (`colon-mv` → `mv`) |
-| `0` | run the built-in rewrite in `src/rewrite/<cmd>.c` |
-| `<name>` | `exec <name>` instead |
+| unset | built-in rewrite (default) |
+| `1` | exec stem of `$0` from `PATH` |
+| `<name>` | exec `<name>` |
 
 A leading colon-path (`:foo/bar`) means BASE `/` (same as `/:foo/bar`).
 For `:mv` / `:cp`, destination `:path` is rewritten by substituting the first

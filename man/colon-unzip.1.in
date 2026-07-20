@@ -12,8 +12,21 @@
 \&...
 .SH DESCRIPTION
 .B @PROG@
-is a colon-path wrapper around
+is a colon-path aware wrapper around
 .BR unzip (1).
+By default (when
+.B COLON_WRAP
+is unset), a built-in rewrite implementation extracts colon-path members
+to their
+.I LEAF
+paths on disk.
+Set
+.B COLON_WRAP=1
+to invoke
+.B unzip
+from
+.B PATH
+instead.
 .PP
 When a member is given as
 .BR BASE:LEAF ,
@@ -44,10 +57,81 @@ Show version and exit.
 .TP
 .B \-\-colon\-dry\-run
 Describe the extract/relocate plan without executing it.
-.PP
-Other options are passed through to
-.BR unzip (1).
-See the original manual for the complete option set.
+When using the built-in rewrite (default), output is prefixed with
+.BR (rewrite) .
+.TP
+.BR \-l ", " \-\-list
+List archive contents.
+.TP
+.BR \-t ", " \-\-test
+Test archive integrity.
+.TP
+.BR \-v ", " \-\-verbose
+Verbose list or test.
+.TP
+.BR \-z ", " \-\-archive\-comment
+Show archive comment only.
+.TP
+.BR \-p ", " \-\-extract\-to\-stdout
+Extract files to stdout.
+.TP
+.B \-c
+Extract to stdout (alias).
+.TP
+.BR \-f ", " \-\-force
+Freshen existing files only.
+.TP
+.BR \-u ", " \-\-update
+Update only if archive member is newer.
+.TP
+.BR \-n ", " \-\-never\-overwrite
+Never overwrite existing files.
+.TP
+.BR \-o ", " \-\-overwrite
+Overwrite existing files without prompting.
+.TP
+.BR \-j ", " \-\-junk\-paths
+Junk directory paths when extracting.
+.TP
+.BR \-d ", " \-\-directory=DIR
+Extract files into
+.IR DIR .
+.TP
+.BR \-x ", " \-\-exclude=GLOB
+Exclude files matching
+.IR GLOB .
+.TP
+.BR \-q ", " \-\-quiet
+Quiet mode.
+.TP
+.B \-qq
+Very quiet mode.
+.TP
+.BR \-P ", " \-\-password=PASS
+Decrypt encrypted entries.
+.TP
+.BR \-I ", " \-\-charset=CHARSET
+Charset for zip entry names.
+.TP
+.BR \-O ", " \-\-output\-dir=DIR
+Output directory for extracted files.
+.TP
+.BR \-W ", " \-\-workdir=DIR
+Use
+.I DIR
+as temporary work directory.
+.SH ENVIRONMENT
+.TP
+.B COLON_WRAP
+When unset (default), use the built-in rewrite implementation.
+When set to
+.BR 1 ,
+exec the stem of
+.B $0
+from
+.B PATH
+(\fBcolon-unzip\fR → \fBunzip\fR).
+When set to a program name, exec that program instead.
 .SH SEE ALSO
 .BR unzip (1),
 .BR colon-zip (1),

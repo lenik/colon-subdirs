@@ -12,7 +12,21 @@
 \&...
 .SH DESCRIPTION
 .B @PROG@
-removes empty directories given as colon-paths.
+is a colon-path aware wrapper around
+.BR rmdir (1).
+By default (when
+.B COLON_WRAP
+is unset), a built-in rewrite implementation removes empty directories
+given as colon-paths and prunes empty parents along
+.IR LEAF .
+Set
+.B COLON_WRAP=1
+to invoke
+.B rmdir
+from
+.B PATH
+instead.
+.PP
 For
 .BR BASE:LEAF ,
 it removes the physical path
@@ -53,9 +67,31 @@ Show version and exit.
 Print the planned
 .B rmdir
 steps without executing them.
-.PP
-Options for plain operands are passed through to
-.BR rmdir (1).
+When using the built-in rewrite (default), output is prefixed with
+.BR (rewrite) .
+.TP
+.BR \-p ", " \-\-parents
+Remove
+.I DIRECTORY
+and its ancestors.
+.TP
+.BR \-v ", " \-\-verbose
+Output a message for every directory processed.
+.TP
+.B \-\-ignore\-fail\-on\-non\-empty
+Ignore failure for directories that are not empty.
+.SH ENVIRONMENT
+.TP
+.B COLON_WRAP
+When unset (default), use the built-in rewrite implementation.
+When set to
+.BR 1 ,
+exec the stem of
+.B $0
+from
+.B PATH
+(\fBcolon-rmdir\fR → \fBrmdir\fR).
+When set to a program name, exec that program instead.
 .SH SEE ALSO
 .BR rmdir (1),
 .BR colon-rm (1),

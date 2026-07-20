@@ -12,13 +12,25 @@
 \&...
 .SH DESCRIPTION
 .B @PROG@
-wraps
+is a colon-path aware wrapper around
 .BR rm (1).
+By default (when
+.B COLON_WRAP
+is unset), a built-in rewrite implementation rewrites path arguments and
+removes files, then prunes empty parent directories along
+.IR LEAF .
+Set
+.B COLON_WRAP=1
+to invoke
+.B rm
+from
+.B PATH
+instead.
+.PP
 Each
 .B BASE:LEAF
 argument is rewritten to the physical path
 .B BASE/LEAF .
-.PP
 After a colon-path file (or tree) is removed, empty parent directories along
 .I LEAF
 are removed with
@@ -61,10 +73,59 @@ Print the planned
 and parent
 .B rmdir
 steps without executing them.
-.PP
-Other options are passed through to
-.BR rm (1).
-See the original manual for the complete option set.
+When using the built-in rewrite (default), output is prefixed with
+.BR (rewrite) .
+.TP
+.BR \-f ", " \-\-force
+Ignore nonexistent files, never prompt.
+.TP
+.B \-i
+Prompt before every removal.
+.TP
+.B \-I
+Prompt once before removing more than three files, or when removing
+recursively.
+.TP
+.B \-\-interactive[=WHEN]
+Prompt according to WHEN: never, once
+.BR (-I) ,
+or always
+.BR (-i) ;
+without WHEN, prompt always.
+.TP
+.BR \-r ", " \-R ", " \-\-recursive
+Remove directories and their contents recursively.
+.TP
+.BR \-d ", " \-\-dir
+Remove empty directories (like rmdir).
+.TP
+.BR \-v ", " \-\-verbose
+Explain what is being done.
+.TP
+.B \-\-one\-file\-system
+When removing recursively, skip mount points.
+.TP
+.B \-\-no\-preserve\-root
+Do not treat
+.B /
+specially.
+.TP
+.B \-\-preserve\-root[=all]
+Do not remove
+.B /
+(default).
+.SH ENVIRONMENT
+.TP
+.B COLON_WRAP
+When unset (default), use the built-in rewrite implementation.
+When set to
+.BR 1 ,
+exec the stem of
+.B $0
+from
+.B PATH
+(\fBcolon-rm\fR → \fBrm\fR).
+When set to a program name, exec that program instead.
 .SH SEE ALSO
 .BR rm (1),
 .BR colon-rmdir (1),
