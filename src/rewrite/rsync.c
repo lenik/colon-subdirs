@@ -140,7 +140,8 @@ int rewrite_rsync(int argc, char **argv) {
         if (is_remote_rsync_path(paths[i])) {
             fprintf(stderr,
                     "%s: remote rsync (host:path or host::module) requires external "
-                    "rsync via COLON_WRAP\n",
+                    "rsync; use COLON_WRAP=1 (or COLON_WRAP=rsync) "
+                    "(rewrite is default when COLON_WRAP is unset)\n",
                     prog);
             free(paths);
             return 1;

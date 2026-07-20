@@ -9,8 +9,8 @@
 
 /*
  * Built-in functional equivalents of the wrapped tools.
- * Invoked when COLON_WRAP=0. Arguments are already colon-path-rewritten
- * (physical paths) unless noted by the caller.
+ * Invoked when COLON_WRAP is unset (default). Arguments are already
+ * colon-path-rewritten (physical paths) unless noted by the caller.
  *
  * argv[0] is the command name; remaining args match the external tool.
  */

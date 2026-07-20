@@ -39,22 +39,23 @@ typedef struct ColonOptArg {
 typedef struct ColonCmdDesc {
     const char *prog;      /* "colon-mv" */
     const char *colon;     /* ":mv" */
-    const char *real_cmd;  /* "mv" — default PATH stem when COLON_WRAP unset */
+    const char *real_cmd;  /* "mv" — PATH stem when COLON_WRAP=1 */
     ColonStyle style;
-    ColonRewriteFn rewrite; /* used when COLON_WRAP=0 */
+    ColonRewriteFn rewrite; /* used when COLON_WRAP is unset (default) */
     /* Short options that take an argument (getopt-style string without ':') —
      * characters listed here consume the next argv element when seen as -X.
      * Long options with =arg or following arg listed in opt_args. */
     const char *short_arg_opts; /* e.g. "Stt" for mv — chars that take args */
     const ColonOptArg *opt_args; /* extra long opts that take args; may be NULL */
-    const char *usage_extra;     /* one-line colon-path hint for --help */
+    const char *usage_extra;     /* colon-path examples for --help */
+    const char *options_help;    /* full tool options text for --help */
 } ColonCmdDesc;
 
 /*
  * COLON_WRAP:
- *   unset     → exec stem from $0 (colon-mv → mv) via PATH
+ *   unset     → call desc->rewrite (default)
+ *   1         → exec stem from $0 (colon-mv → mv) via PATH
  *   <rename>  → exec <rename>
- *   0         → call desc->rewrite
  */
 int colon_cmd_main(const ColonCmdDesc *desc, int argc, char **argv);
 

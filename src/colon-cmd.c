@@ -26,18 +26,18 @@ define_logger();
 
 static const char *g_argv0;
 
-/* COLON_WRAP: unset → PATH stem; "0" → rewrite; else → exec that name */
+/* COLON_WRAP: unset → rewrite; "1" → PATH stem; else → exec that name */
 static int wrap_is_rewrite(void) {
     const char *env = getenv("COLON_WRAP");
-    return env && strcmp(env, "0") == 0;
+    return !env || env[0] == '\0';
 }
 
 static const char *wrap_exec_name(const ColonCmdDesc *desc) {
     const char *env = getenv("COLON_WRAP");
-    if (env && env[0] && strcmp(env, "0") != 0) {
+    if (env && env[0] && strcmp(env, "1") != 0) {
         return env;
     }
-    /* Stem from $0: colon-mv / :mv → mv */
+    /* COLON_WRAP=1 (or treated as stem): colon-mv / :mv → mv */
     const char *base = g_argv0 ? g_argv0 : desc->real_cmd;
     const char *slash = strrchr(base, '/');
     if (slash) {
@@ -186,11 +186,12 @@ static int split_argv(const ColonCmdDesc *desc, int argc, char **argv, ArgList *
 static void print_help(const ColonCmdDesc *desc) {
     printf(_("Usage: %s [OPTION]... [FILE]...\n"), desc->colon);
     printf(_("       %s [OPTION]... [FILE]...\n"), desc->prog);
-    printf(_("Colon-path wrapper around %s(1).\n"), desc->real_cmd);
+    printf(_("Colon-path aware %s.\n"), desc->real_cmd);
     fputc('\n', stdout);
     fputs(_("Colon-path syntax:\n"), stdout);
     fputs(_("  BASE:LEAF   physical path is BASE/LEAF; LEAF is the atomic name\n"), stdout);
     fputs(_("              used under a destination directory or inside archives.\n"), stdout);
+    fputs(_("  :LEAF       empty BASE means \"/\" (same as /:LEAF).\n"), stdout);
     fputc('\n', stdout);
     if (desc->usage_extra) {
         fputs(desc->usage_extra, stdout);
@@ -200,14 +201,17 @@ static void print_help(const ColonCmdDesc *desc) {
     fputs(_("Wrapper options:\n"), stdout);
     fputs(_("  -h, --help           show this help and exit\n"), stdout);
     fputs(_("      --version        show version and exit\n"), stdout);
-    fputs(_("      --colon-dry-run  print rewritten command, do not execute\n"), stdout);
-    fputs(_("Environment:\n"), stdout);
-    fputs(_("  COLON_WRAP=0       use built-in rewrite implementation\n"), stdout);
-    fputs(_("  COLON_WRAP=<name>  exec <name> instead of the PATH tool\n"), stdout);
-    fputs(_("  (unset)            exec stem of $0 from PATH (colon-mv → mv)\n"), stdout);
+    fputs(_("      --colon-dry-run  print planned command, do not execute\n"), stdout);
     fputc('\n', stdout);
-    printf(_("Other options are passed through to %s. See %s(1) for details.\n"),
-           desc->real_cmd, desc->real_cmd);
+    if (desc->options_help) {
+        fputs(desc->options_help, stdout);
+        fputc('\n', stdout);
+    }
+    fputs(_("Environment:\n"), stdout);
+    fputs(_("  COLON_WRAP (unset)  use built-in rewrite implementation (default)\n"), stdout);
+    fputs(_("  COLON_WRAP=1        exec stem of $0 from PATH (colon-mv → mv)\n"), stdout);
+    fputs(_("  COLON_WRAP=<name>   exec <name> instead of the PATH tool\n"), stdout);
+    fputc('\n', stdout);
     printf(_("Report bugs to: <%s>\n"), PROJECT_EMAIL);
 }
 
@@ -724,8 +728,7 @@ static int run_exec_wait(const ColonCmdDesc *desc, ArgList *opts, char **file_ar
         return -1;
     }
     if (pid == 0) {
-        run_exec(desc, opts, file_args, 0);
-        _exit(127);
+        _exit(run_exec(desc, opts, file_args, 0));
     }
     int st = 0;
     if (waitpid(pid, &st, 0) < 0) {
@@ -906,8 +909,7 @@ static int run_exec_pair(const ColonCmdDesc *desc, ArgList *opts, const char *sr
         return -1;
     }
     if (pid == 0) {
-        run_exec(desc, opts, files, 0);
-        _exit(127);
+        _exit(run_exec(desc, opts, files, 0));
     }
     int st = 0;
     if (waitpid(pid, &st, 0) < 0) {

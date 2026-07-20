@@ -89,8 +89,9 @@ int rewrite_scp(int argc, char **argv) {
 
     if (scan_remote_operands(argc, argv)) {
         fprintf(stderr,
-                "%s: remote host:path is not supported; unset COLON_WRAP or set "
-                "COLON_WRAP to use external scp\n",
+                "%s: remote host:path is not supported by built-in rewrite; "
+                "use COLON_WRAP=1 (or COLON_WRAP=scp) for external scp "
+                "(rewrite is default when COLON_WRAP is unset)\n",
                 prog);
         return 1;
     }
