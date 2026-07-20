@@ -1,14 +1,19 @@
-colon-subdirs (1.1.0) unstable; urgency=medium
+colon-subdirs (1.1.0) UNRELEASED; urgency=medium
 
+  * COLON_WRAP default is built-in rewrite; COLON_WRAP=1 uses PATH stem;
+    COLON_WRAP=<name> execs that binary.
+  * Document full command options in --help and man pages (no need to consult
+    the original tool manuals for common flags).
+  * Add shell integration tests under tests/shell/ that create fixtures, run
+    each colon-* command, and assert results (wired into Meson).
+  * Fix rewrite mode exit status after fork (run_exec_wait / run_exec_pair)
+    so :rm leaf pruning and similar post-exec steps see the real status.
   * Treat leading colon-paths (:foo/bar) as BASE "/" (same as /:foo/bar).
   * For :mv/:cp destinations, substitute the first ':' with '/' safely.
   * Add built-in rewrite backends under src/rewrite/ for each wrapped command.
-  * Honor COLON_WRAP: unset execs $0 stem from PATH; COLON_WRAP=<name> execs
-    that binary; COLON_WRAP=0 runs the rewrite implementation.
-  * Update man pages, README, bash-completion notes, and unit tests for the
-    empty-left path form and COLON_WRAP.
+  * Update README and unit tests for empty-left paths and COLON_WRAP.
 
- -- Lenik (谢继雷) <lenik@bodz.net>  Fri, 17 Jul 2026 02:46:00 +0800
+ -- Lenik (谢继雷) <lenik@bodz.net>  Mon, 20 Jul 2026 13:15:00 +0800
 
 colon-subdirs (1.0.0) unstable; urgency=medium
 
