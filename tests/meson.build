@@ -37,3 +37,23 @@ test(
     find_program('bash'),
     args: [meson.current_source_dir() / 'completion_smoke.sh'],
 )
+
+bash = find_program('bash')
+shell_tests = [
+    'mv',
+    'cp',
+    'rm',
+    'zip',
+    'scp',
+]
+foreach name : shell_tests
+    test(
+        'shell-' + name,
+        bash,
+        args: [meson.current_source_dir() / 'shell' / ('test-' + name + '.sh')],
+        env: {
+            'COLON_BINDIR': meson.project_build_root(),
+        },
+        is_parallel: false,
+    )
+endforeach

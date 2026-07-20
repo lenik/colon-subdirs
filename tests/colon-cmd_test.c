@@ -22,6 +22,7 @@ START_TEST(test_help_exits_zero) {
         .short_arg_opts = "St",
         .opt_args = NULL,
         .usage_extra = NULL,
+        .options_help = NULL,
     };
     ck_assert_int_eq(colon_cmd_main(&desc, 2, argv), 0);
 }
